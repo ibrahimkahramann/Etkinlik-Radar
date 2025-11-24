@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: etkinlik-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - etkinlik-network
+
+  postgres:
+    image: postgres:alpine
+    container_name: etkinlik-postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=Password123!
+      - POSTGRES_DB=FollowerDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - etkinlik-network
+
+  mongo:
+    image: mongo:latest
+    container_name: etkinlik-mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Password123!
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - etkinlik-network
+
+  redis:
+    image: redis:alpine
+    container_name: etkinlik-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - etkinlik-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: etkinlik-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - etkinlik-network
+
+networks:
+  etkinlik-network:
+    driver: bridge
+
+volumes:
+  sqlserver_data:
+  postgres_data:
+  mongo_data:
