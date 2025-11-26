@@ -1,0 +1,6 @@
+@FollowerService_HostAddress = http://localhost:5134
+
+GET {{FollowerService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
