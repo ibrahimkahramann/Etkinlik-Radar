@@ -4,9 +4,11 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["EventCatalogService.csproj", "./"]
-RUN dotnet restore "EventCatalogService.csproj"
+COPY ["src/Services/EventCatalogService/EventCatalogService.csproj", "src/Services/EventCatalogService/"]
+COPY ["src/BuildingBlocks/EventBus.Messages/EventBus.Messages.csproj", "src/BuildingBlocks/EventBus.Messages/"]
+RUN dotnet restore "src/Services/EventCatalogService/EventCatalogService.csproj"
 COPY . .
+WORKDIR "/src/src/Services/EventCatalogService"
 RUN dotnet build "EventCatalogService.csproj" -c Release -o /app/build
 
 FROM build AS publish
