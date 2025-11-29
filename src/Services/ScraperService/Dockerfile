@@ -4,9 +4,11 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["ScraperService.csproj", "./"]
-RUN dotnet restore "ScraperService.csproj"
+COPY ["src/Services/ScraperService/ScraperService.csproj", "src/Services/ScraperService/"]
+COPY ["src/BuildingBlocks/EventBus.Messages/EventBus.Messages.csproj", "src/BuildingBlocks/EventBus.Messages/"]
+RUN dotnet restore "src/Services/ScraperService/ScraperService.csproj"
 COPY . .
+WORKDIR "/src/src/Services/ScraperService"
 RUN dotnet build "ScraperService.csproj" -c Release -o /app/build
 
 FROM build AS publish

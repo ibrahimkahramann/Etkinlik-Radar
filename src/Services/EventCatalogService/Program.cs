@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MassTransit;
+using EventCatalogService.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<EventScrapedConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var rabbitHost = builder.Configuration.GetValue<string>("RabbitMQ:Host") ?? "localhost";
+        var rabbitUser = builder.Configuration.GetValue<string>("RabbitMQ:Username") ?? "guest";
+        var rabbitPass = builder.Configuration.GetValue<string>("RabbitMQ:Password") ?? "guest";
+
+        cfg.Host(rabbitHost, "/", h =>
+        {
+            h.Username(rabbitUser);
+            h.Password(rabbitPass);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 var app = builder.Build();
 

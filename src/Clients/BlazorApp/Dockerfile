@@ -4,9 +4,10 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["BlazorApp.csproj", "./"]
-RUN dotnet restore "BlazorApp.csproj"
+COPY ["src/Clients/BlazorApp/BlazorApp.csproj", "src/Clients/BlazorApp/"]
+RUN dotnet restore "src/Clients/BlazorApp/BlazorApp.csproj"
 COPY . .
+WORKDIR "/src/src/Clients/BlazorApp"
 RUN dotnet build "BlazorApp.csproj" -c Release -o /app/build
 
 FROM build AS publish

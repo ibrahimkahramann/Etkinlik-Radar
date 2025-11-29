@@ -1,4 +1,5 @@
 using MassTransit;
+using EventBus.Messages;
 
 namespace ScraperService.Services;
 
@@ -25,10 +26,12 @@ public class ScraperBackgroundService : BackgroundService
 public class ScrapeAllConsumer : IConsumer<ScrapeAllCommand>
 {
     private readonly ILogger<ScrapeAllConsumer> _logger;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ScrapeAllConsumer(ILogger<ScrapeAllConsumer> logger)
+    public ScrapeAllConsumer(ILogger<ScrapeAllConsumer> logger, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task Consume(ConsumeContext<ScrapeAllCommand> context)
@@ -38,6 +41,20 @@ public class ScrapeAllConsumer : IConsumer<ScrapeAllCommand>
         
         await Task.Delay(2000);
         
+        var eventScraped = new EventScraped
+        {
+            Name = "Tarkan Konseri",
+            Description = "Harbiye Açıkhava Tarkan Konseri",
+            Date = DateTime.Now.AddDays(7),
+            Location = "Harbiye Cemil Topuzlu Açıkhava Tiyatrosu",
+            Url = "https://biletix.com/etkinlik/123",
+            ImageUrl = "https://example.com/tarkan.jpg",
+            Source = "Biletix"
+        };
+
+        await _publishEndpoint.Publish(eventScraped);
+        _logger.LogInformation("Published EventScraped event for {EventName}", eventScraped.Name);
+
         _logger.LogInformation("Scraping completed for all sites");
     }
 }
@@ -45,10 +62,12 @@ public class ScrapeAllConsumer : IConsumer<ScrapeAllCommand>
 public class ScrapeSiteConsumer : IConsumer<ScrapeSiteCommand>
 {
     private readonly ILogger<ScrapeSiteConsumer> _logger;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ScrapeSiteConsumer(ILogger<ScrapeSiteConsumer> logger)
+    public ScrapeSiteConsumer(ILogger<ScrapeSiteConsumer> logger, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task Consume(ConsumeContext<ScrapeSiteCommand> context)
@@ -58,6 +77,20 @@ public class ScrapeSiteConsumer : IConsumer<ScrapeSiteCommand>
         
         await Task.Delay(1000);
         
+        var eventScraped = new EventScraped
+        {
+            Name = "Fazıl Say Resitali",
+            Description = "Fazıl Say Piyano Resitali",
+            Date = DateTime.Now.AddDays(14),
+            Location = "AKM",
+            Url = "https://passo.com.tr/etkinlik/456",
+            ImageUrl = "https://example.com/fazilsay.jpg",
+            Source = context.Message.SiteName
+        };
+
+        await _publishEndpoint.Publish(eventScraped);
+        _logger.LogInformation("Published EventScraped event for {EventName}", eventScraped.Name);
+
         _logger.LogInformation("Scraping completed for {SiteName}", context.Message.SiteName);
     }
 }

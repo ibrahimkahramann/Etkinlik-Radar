@@ -4,9 +4,10 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["FollowerService.csproj", "./"]
-RUN dotnet restore "FollowerService.csproj"
+COPY ["src/Services/FollowerService/FollowerService.csproj", "src/Services/FollowerService/"]
+RUN dotnet restore "src/Services/FollowerService/FollowerService.csproj"
 COPY . .
+WORKDIR "/src/src/Services/FollowerService"
 RUN dotnet build "FollowerService.csproj" -c Release -o /app/build
 
 FROM build AS publish
