@@ -6,6 +6,7 @@ public record EventScraped
     public string Description { get; init; } = default!;
     public DateTime Date { get; init; }
     public string Location { get; init; } = default!;
+    public string City { get; init; } = default!;
     public string Url { get; init; } = default!;
     public string ImageUrl { get; init; } = default!;
     public string Source { get; init; } = default!;
