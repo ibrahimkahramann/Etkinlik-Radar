@@ -1,5 +1,7 @@
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using ScraperService.Application.Features.Scraping.Consumers;
+using EventBus.Messages;
 
 namespace ScraperService.Controllers;
 
@@ -31,30 +33,20 @@ public class ScraperController : ControllerBase
     }
 
     [HttpPost("start/{siteName}")]
-    public async Task<IActionResult> StartScrapingSite(string siteName)
+    public async Task<IActionResult> StartScrapingSite(string siteName, [FromQuery] string? city = null)
     {
-        _logger.LogInformation("Scraping for {SiteName} manually triggered", siteName);
+        _logger.LogInformation("Scraping for {SiteName} manually triggered. City: {City}", siteName, city ?? "All");
         
         await _publishEndpoint.Publish(new ScrapeSiteCommand
         {
             SiteName = siteName,
+            City = city,
             TriggeredAt = DateTime.UtcNow,
             Source = "Manual"
         });
 
-        return Ok(new { message = $"{siteName} için scraping başlatıldı", triggeredAt = DateTime.UtcNow });
+        return Ok(new { message = $"{siteName} için scraping başlatıldı", city = city ?? "All", triggeredAt = DateTime.UtcNow });
     }
 }
 
-public record ScrapeAllCommand
-{
-    public DateTime TriggeredAt { get; init; }
-    public string Source { get; init; } = string.Empty;
-}
 
-public record ScrapeSiteCommand
-{
-    public string SiteName { get; init; } = string.Empty;
-    public DateTime TriggeredAt { get; init; }
-    public string Source { get; init; } = string.Empty;
-}

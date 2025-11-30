@@ -138,12 +138,28 @@ services:
       - MongoDB__DatabaseName=EventCatalogDb
       - Keycloak__Authority=http://keycloak:8080/realms/etkinlik-radar
       - Keycloak__Audience=scraper-api
+      - Selenium__Host=selenium
+      - FlareSolverr__BaseUrl=http://flaresolverr:8191
     ports:
       - "5004:8080"
     depends_on:
       - rabbitmq
       - mongo
       - keycloak
+      - flaresolverr
+    networks:
+      - etkinlik-network
+
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: etkinlik-flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+      - TZ=Europe/Istanbul
+    ports:
+      - "8191:8191"
     networks:
       - etkinlik-network
 
@@ -174,6 +190,16 @@ services:
       - eventcatalogservice
       - followerservice
       - blazorapp
+    networks:
+      - etkinlik-network
+
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    container_name: etkinlik-selenium
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    shm_size: "2gb"
     networks:
       - etkinlik-network
 
