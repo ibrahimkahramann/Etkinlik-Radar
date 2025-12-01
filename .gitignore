@@ -45,3 +45,6 @@ keycloak/data/
 ## Logs
 logs/
 *.log
+ 
+claude/
+.claude/

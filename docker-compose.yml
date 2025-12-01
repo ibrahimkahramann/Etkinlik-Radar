@@ -84,8 +84,8 @@ services:
 
   eventcatalogservice:
     build:
-      context: ./src/Services/EventCatalogService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Services/EventCatalogService/Dockerfile
     container_name: etkinlik-eventcatalogservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -94,6 +94,9 @@ services:
       - Redis__ConnectionString=redis:6379
       - Keycloak__Authority=http://keycloak:8080/realms/etkinlik-radar
       - Keycloak__Audience=eventcatalog-api
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     ports:
       - "5002:8080"
     depends_on:
@@ -105,8 +108,8 @@ services:
 
   followerservice:
     build:
-      context: ./src/Services/FollowerService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Services/FollowerService/Dockerfile
     container_name: etkinlik-followerservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -123,8 +126,8 @@ services:
 
   scraperservice:
     build:
-      context: ./src/Services/ScraperService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Services/ScraperService/Dockerfile
     container_name: etkinlik-scraperservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -135,19 +138,35 @@ services:
       - MongoDB__DatabaseName=EventCatalogDb
       - Keycloak__Authority=http://keycloak:8080/realms/etkinlik-radar
       - Keycloak__Audience=scraper-api
+      - Selenium__Host=selenium
+      - FlareSolverr__BaseUrl=http://flaresolverr:8191
     ports:
       - "5004:8080"
     depends_on:
       - rabbitmq
       - mongo
       - keycloak
+      - flaresolverr
+    networks:
+      - etkinlik-network
+
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: etkinlik-flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+      - TZ=Europe/Istanbul
+    ports:
+      - "8191:8191"
     networks:
       - etkinlik-network
 
   blazorapp:
     build:
-      context: ./src/Clients/BlazorApp
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Clients/BlazorApp/Dockerfile
     container_name: etkinlik-blazorapp
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -171,6 +190,16 @@ services:
       - eventcatalogservice
       - followerservice
       - blazorapp
+    networks:
+      - etkinlik-network
+
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    container_name: etkinlik-selenium
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    shm_size: "2gb"
     networks:
       - etkinlik-network
 
