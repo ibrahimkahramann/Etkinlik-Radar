@@ -10,7 +10,8 @@
       "Bash(docker restart:*)",
       "Bash(docker network inspect:*)",
       "Bash(docker-compose restart:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(dotnet build:*)"
     ],
     "deny": [],
     "ask": []

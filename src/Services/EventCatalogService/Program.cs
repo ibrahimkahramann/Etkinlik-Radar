@@ -3,12 +3,16 @@ using Microsoft.IdentityModel.Tokens;
 using MassTransit;
 using EventCatalogService.Consumers;
 using EventCatalogService.Data;
+using EventCatalogService.Core.Application.Interfaces;
+using EventCatalogService.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IEventRepository, EventRepository>();
 
 builder.Services.AddScoped<IEventContext, EventContext>();
 
