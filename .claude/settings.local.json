@@ -11,7 +11,8 @@
       "Bash(docker network inspect:*)",
       "Bash(docker-compose restart:*)",
       "Bash(docker exec:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(docker port:*)"
     ],
     "deny": [],
     "ask": []
