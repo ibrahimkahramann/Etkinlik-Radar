@@ -54,9 +54,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateAudience = true,
+            ValidateAudience = false,
             ValidateIssuer = true,
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            ValidIssuers = new[] { authority, "http://localhost:8080/realms/etkinlik-radar" }
         };
     });
 

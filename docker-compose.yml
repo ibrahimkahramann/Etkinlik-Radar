@@ -189,7 +189,7 @@ services:
     depends_on:
       - eventcatalogservice
       - followerservice
-      - blazorapp
+      # - blazorapp
     networks:
       - etkinlik-network
 

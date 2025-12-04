@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import Link from "next/link";
+import FollowButton from "@/components/FollowButton";
 
 type Event = {
   id: string;
@@ -11,25 +12,60 @@ type Event = {
 };
 
 async function getEvents() {
-  const res = await fetch("http://localhost/api/events", { 
-    cache: "no-store"
-  });
+  try {
+    const res = await fetch("http://localhost/api/events", {
+      cache: "no-store"
+    });
 
-  if (!res.ok) {
-    throw new Error("Etkinlikler getirilemedi");
+    if (!res.ok) {
+      console.error("Failed to fetch events:", res.status, res.statusText);
+      return [];
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return [];
   }
+}
 
-  return res.json();
+async function getFollowedArtists(accessToken?: string) {
+  if (!accessToken) return [];
+
+  try {
+    const res = await fetch("http://localhost/api/followers", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    return data.map((f: any) => f.artistId);
+  } catch (error) {
+    console.error("Error fetching follows:", error);
+    return [];
+  }
 }
 
 export default async function Home() {
   const session = await getServerSession();
   let events: Event[] = [];
+  let followedArtists: string[] = [];
 
   try {
     events = await getEvents();
+    if (session && (session as any).accessToken) {
+      followedArtists = await getFollowedArtists((session as any).accessToken);
+    }
   } catch (error) {
-    console.error(error);
+    console.error("Error in Home:", error);
+  }
+
+  if (!Array.isArray(events)) {
+    events = [];
   }
 
   return (
@@ -51,20 +87,27 @@ export default async function Home() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {events.map((evt) => (
-          <div key={evt.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition">
-            <img 
-              src={evt.imageUrl} 
-              alt={evt.name} 
+        {events.map((evt, index) => (
+          <div key={`${evt.id}-${index}`} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition flex flex-col">
+            <img
+              src={evt.imageUrl}
+              alt={evt.name}
               className="w-full h-48 object-cover"
             />
-            <div className="p-4">
+            <div className="p-4 flex-1 flex flex-col">
               <h2 className="font-bold text-xl mb-2 text-gray-800">{evt.name}</h2>
-              <p className="text-gray-600 text-sm mb-2">{evt.city} - {new Date(evt.eventDate).toLocaleDateString()}</p>
-              <p className="text-gray-500 text-sm line-clamp-2">{evt.description}</p>
-              <button className="mt-4 w-full bg-indigo-50 text-indigo-600 py-2 rounded hover:bg-indigo-100 font-medium">
-                Detayları Gör
-              </button>
+              <div className="text-gray-600 text-sm mb-2" suppressHydrationWarning>{evt.city} - {new Date(evt.eventDate).toLocaleDateString()}</div>
+              <div className="text-gray-500 text-sm line-clamp-2 mb-4 flex-1">{evt.description}</div>
+
+              <div className="mt-auto">
+                <button className="w-full bg-indigo-50 text-indigo-600 py-2 rounded hover:bg-indigo-100 font-medium mb-2">
+                  Detayları Gör
+                </button>
+                <FollowButton
+                  artistId={evt.name}
+                  initialIsFollowing={followedArtists.includes(evt.name)}
+                />
+              </div>
             </div>
           </div>
         ))}
