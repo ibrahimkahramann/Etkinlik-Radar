@@ -21,8 +21,12 @@
       "implicitFlowEnabled": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "eventcatalog-secret-2024",
-      "redirectUris": ["*"],
-      "webOrigins": ["*"],
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
       "attributes": {
         "access.token.lifespan": "3600"
       }
@@ -39,8 +43,12 @@
       "implicitFlowEnabled": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "follower-secret-2024",
-      "redirectUris": ["*"],
-      "webOrigins": ["*"],
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
       "attributes": {
         "access.token.lifespan": "3600"
       }
@@ -57,8 +65,12 @@
       "implicitFlowEnabled": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "scraper-secret-2024",
-      "redirectUris": ["*"],
-      "webOrigins": ["*"],
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
       "attributes": {
         "access.token.lifespan": "3600"
       }
@@ -84,6 +96,29 @@
       "attributes": {
         "access.token.lifespan": "3600",
         "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "etkinlik-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "etkinlik-secret-2024",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:3000/api/auth/callback/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "access.token.lifespan": "3600"
       }
     }
   ],
@@ -114,7 +149,10 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["admin", "user"]
+      "realmRoles": [
+        "admin",
+        "user"
+      ]
     },
     {
       "username": "adminuser",
@@ -130,7 +168,9 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["admin"]
+      "realmRoles": [
+        "admin"
+      ]
     }
   ]
 }
