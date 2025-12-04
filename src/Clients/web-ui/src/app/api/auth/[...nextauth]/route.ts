@@ -4,9 +4,9 @@ import KeycloakProvider from "next-auth/providers/keycloak";
 const handler = NextAuth({
   providers: [
     KeycloakProvider({
-      clientId: "etkinlik-client",
-      clientSecret: "client-secret-buraya",
-      issuer: "http://localhost/api/identity/realms/master",
+      clientId: process.env.KEYCLOAK_CLIENT_ID!,
+      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+      issuer: process.env.KEYCLOAK_ISSUER!,
     }),
   ],
   callbacks: {
