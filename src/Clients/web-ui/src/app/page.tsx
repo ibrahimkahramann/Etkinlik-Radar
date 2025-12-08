@@ -13,8 +13,9 @@ type Event = {
 
 async function getEvents() {
   try {
-    const res = await fetch("http://localhost/api/events", {
-      cache: "no-store"
+    const res = await fetch("http://localhost/api/events?page=1&pageSize=50", {
+      cache: "force-cache",
+      next: { revalidate: 300 }
     });
 
     if (!res.ok) {
