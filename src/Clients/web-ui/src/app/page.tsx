@@ -9,6 +9,8 @@ type Event = {
   eventDate: string;
   imageUrl: string;
   city: string;
+  ticketUrl: string;
+  source: string;
 };
 
 async function getEvents() {
@@ -99,10 +101,17 @@ export default async function Home() {
               <div className="text-gray-600 text-sm mb-2" suppressHydrationWarning>{evt.city} - {new Date(evt.eventDate).toLocaleDateString()}</div>
               <div className="text-gray-500 text-sm line-clamp-2 mb-4 flex-1">{evt.description}</div>
 
-              <div className="mt-auto">
-                <button className="w-full bg-indigo-50 text-indigo-600 py-2 rounded hover:bg-indigo-100 font-medium mb-2">
-                  Detayları Gör
-                </button>
+              <div className="mt-auto flex flex-col gap-2">
+                {evt.ticketUrl && (
+                  <a
+                    href={evt.ticketUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-medium text-center"
+                  >
+                    Bilet Al ({evt.source})
+                  </a>
+                )}
                 <FollowButton
                   artistId={evt.name}
                   initialIsFollowing={followedArtists.includes(evt.name)}
