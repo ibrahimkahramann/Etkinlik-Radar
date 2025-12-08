@@ -6,6 +6,7 @@ using ScraperService.Core.Interfaces;
 using ScraperService.Infrastructure.Adapters;
 using ScraperService.Application.Features.Scraping.Consumers;
 using ScraperService.Core.Options;
+using ScraperService.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,8 @@ builder.Services.AddTransient<BubiletScraper>();
 builder.Services.AddTransient<BiletinialScraper>();
 builder.Services.AddTransient<BiletinoScraper>();
 builder.Services.AddTransient<BiletixScraper>();
+
+builder.Services.AddSingleton<IScrapeJobTracker, ScrapeJobTracker>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
