@@ -12,7 +12,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetValue<string>("CacheSettings:ConnectionString") ?? "etkinlik-redis:6379";
+    options.InstanceName = "EtkinlikRadar_"; 
+});
+
+builder.Services.AddScoped<EventRepository>();
+
+builder.Services.AddScoped<IEventRepository, CachedEventRepository>();
 
 builder.Services.AddScoped<IEventContext, EventContext>();
 
