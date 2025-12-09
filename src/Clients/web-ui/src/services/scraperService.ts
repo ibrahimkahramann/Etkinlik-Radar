@@ -2,7 +2,7 @@ const API_URL = "http://localhost/api/scraper";
 
 export const scraperService = {
   startScraping: async (accessToken: string) => {
-    const response = await fetch(`${API_URL}/start-all`, {
+    const response = await fetch(`${API_URL}/start`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
