@@ -20,11 +20,27 @@ public class EventsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Event>>> GetAllEvents()
+    public async Task<ActionResult<IEnumerable<Event>>> GetAllEvents(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50)
     {
-        _logger.LogInformation("Getting all events");
-        var events = await _eventRepository.GetAllEventsAsync();
-        return Ok(events);
+        _logger.LogInformation("Getting events - Page: {Page}, PageSize: {PageSize}", page, pageSize);
+
+        // Sayfa numarası en az 1 olmalı
+        if (page < 1) page = 1;
+        // Sayfa boyutu 1-1000 arası olmalı
+        if (pageSize < 1) pageSize = 50;
+        if (pageSize > 1000) pageSize = 1000;
+
+        var allEvents = await _eventRepository.GetAllEventsAsync();
+
+        // Pagination uygula
+        var paginatedEvents = allEvents
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return Ok(paginatedEvents);
     }
 
     [HttpGet("{id}")]
