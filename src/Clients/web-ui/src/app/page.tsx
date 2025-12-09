@@ -9,6 +9,8 @@ type Event = {
   eventDate: string;
   imageUrl: string;
   city: string;
+  ticketUrl: string;
+  source: string;
 };
 
 async function getEvents() {
@@ -89,11 +91,35 @@ export default async function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {events.map((evt, index) => (
-          <EventCard
-            key={`${evt.id}-${index}`}
-            event={evt}
-            isFollowing={followedArtists.includes(evt.name)}
-          />
+          <div key={`${evt.id}-${index}`} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition flex flex-col">
+            <img
+              src={evt.imageUrl}
+              alt={evt.name}
+              className="w-full h-48 object-cover"
+            />
+            <div className="p-4 flex-1 flex flex-col">
+              <h2 className="font-bold text-xl mb-2 text-gray-800">{evt.name}</h2>
+              <div className="text-gray-600 text-sm mb-2" suppressHydrationWarning>{evt.city} - {new Date(evt.eventDate).toLocaleDateString()}</div>
+              <div className="text-gray-500 text-sm line-clamp-2 mb-4 flex-1">{evt.description}</div>
+
+              <div className="mt-auto flex flex-col gap-2">
+                {evt.ticketUrl && (
+                  <a
+                    href={evt.ticketUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-medium text-center"
+                  >
+                    Bilet Al ({evt.source})
+                  </a>
+                )}
+                <FollowButton
+                  artistId={evt.name}
+                  initialIsFollowing={followedArtists.includes(evt.name)}
+                />
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </main>
