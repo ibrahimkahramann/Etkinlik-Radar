@@ -9,6 +9,8 @@ type Event = {
   eventDate: string;
   imageUrl: string;
   city: string;
+  ticketUrl?: string;
+  source?: string;
 };
 
 interface EventCardProps {
@@ -33,10 +35,17 @@ export default function EventCard({ event, isFollowing }: EventCardProps) {
           {event.description}
         </div>
 
-        <div className="mt-auto">
-          <button className="w-full bg-indigo-50 text-indigo-600 py-2 rounded hover:bg-indigo-100 font-medium mb-2">
-            Detayları Gör
-          </button>
+        <div className="mt-auto flex flex-col gap-2">
+          {event.ticketUrl && (
+            <a
+              href={event.ticketUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-medium text-center"
+            >
+              Bilet Al ({event.source})
+            </a>
+          )}
           <FollowButton
             artistId={event.name}
             initialIsFollowing={isFollowing}
