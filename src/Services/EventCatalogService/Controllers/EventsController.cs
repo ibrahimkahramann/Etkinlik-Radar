@@ -22,9 +22,10 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllEvents(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 12)
+        [FromQuery] int pageSize = 12,
+        [FromQuery] string? city = null)
     {
-        _logger.LogInformation("Getting events - Page: {Page}, PageSize: {PageSize}", page, pageSize);
+        _logger.LogInformation("Getting events - Page: {Page}, PageSize: {PageSize}, City: {City}", page, pageSize, city);
 
         // Sayfa numarası en az 1 olmalı
         if (page < 1) page = 1;
@@ -35,6 +36,15 @@ public class EventsController : ControllerBase
         var allEvents = (await _eventRepository.GetAllEventsAsync())
             .Where(e => !string.IsNullOrWhiteSpace(e.City))
             .ToList();
+
+        // Şehir filtresi uygula
+        if (!string.IsNullOrWhiteSpace(city))
+        {
+            allEvents = allEvents
+                .Where(e => e.City != null && e.City.Equals(city, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
         var totalCount = allEvents.Count;
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
@@ -50,10 +60,28 @@ public class EventsController : ControllerBase
             page = page,
             pageSize = pageSize,
             totalCount = totalCount,
-            totalPages = totalPages
+            totalPages = totalPages,
+            city = city
         };
 
         return Ok(response);
+    }
+
+    [HttpGet("cities")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<string>>> GetAllCities()
+    {
+        _logger.LogInformation("Getting all cities");
+
+        var allEvents = await _eventRepository.GetAllEventsAsync();
+        var cities = allEvents
+            .Where(e => !string.IsNullOrWhiteSpace(e.City))
+            .Select(e => e.City!)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
+
+        return Ok(cities);
     }
 
     [HttpGet("{id}")]

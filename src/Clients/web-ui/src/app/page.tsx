@@ -3,6 +3,7 @@ import Link from "next/link";
 import EventCard from "@/components/EventCard";
 import FollowButton from "@/components/FollowButton";
 import Pagination from "@/components/Pagination";
+import CityFilter from "@/components/CityFilter";
 
 type Event = {
   id: string;
@@ -21,11 +22,17 @@ type EventsResponse = {
   pageSize: number;
   totalCount: number;
   totalPages: number;
+  city?: string;
 };
 
-async function getEvents(page: number = 1, pageSize: number = 12): Promise<EventsResponse> {
+async function getEvents(page: number = 1, pageSize: number = 12, city?: string): Promise<EventsResponse> {
   try {
-    const res = await fetch(`http://localhost/api/events?page=${page}&pageSize=${pageSize}`, {
+    let url = `http://localhost/api/events?page=${page}&pageSize=${pageSize}`;
+    if (city) {
+      url += `&city=${encodeURIComponent(city)}`;
+    }
+    
+    const res = await fetch(url, {
       cache: "no-store",
     });
 
@@ -38,6 +45,24 @@ async function getEvents(page: number = 1, pageSize: number = 12): Promise<Event
   } catch (error) {
     console.error("Error fetching events:", error);
     return { data: [], page: 1, pageSize: 12, totalCount: 0, totalPages: 0 };
+  }
+}
+
+async function getCities(): Promise<string[]> {
+  try {
+    const res = await fetch("http://localhost/api/events/cities", {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch cities:", res.status, res.statusText);
+      return [];
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+    return [];
   }
 }
 
@@ -65,17 +90,23 @@ async function getFollowedArtists(accessToken?: string) {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; city?: string }>;
 }) {
   const params = await searchParams;
   const currentPage = parseInt(params.page || "1", 10);
+  const currentCity = params.city || null;
   
   const session = await getServerSession();
   let eventsResponse: EventsResponse = { data: [], page: 1, pageSize: 12, totalCount: 0, totalPages: 0 };
   let followedArtists: string[] = [];
+  let cities: string[] = [];
 
   try {
-    eventsResponse = await getEvents(currentPage, 12);
+    [eventsResponse, cities] = await Promise.all([
+      getEvents(currentPage, 12, currentCity || undefined),
+      getCities()
+    ]);
+    
     if (session && (session as any).accessToken) {
       followedArtists = await getFollowedArtists((session as any).accessToken);
     }
@@ -87,22 +118,27 @@ export default async function Home({
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
-      <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow">
-        <h1 className="text-2xl font-bold text-indigo-600">Etkinlik Radar</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500">
-            {eventsResponse.totalCount} etkinlik bulundu
-          </span>
-          {session ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm">Hoşgeldin, {session.user?.name}</span>
-              <Link href="/api/auth/signout" className="text-red-500 hover:underline">Çıkış Yap</Link>
-            </div>
-          ) : (
-            <Link href="/api/auth/signin" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-              Giriş Yap
-            </Link>
-          )}
+      <header className="flex flex-col gap-4 mb-8 bg-white p-4 rounded-lg shadow">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-indigo-600">Etkinlik Radar</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">
+              {eventsResponse.totalCount} etkinlik bulundu
+            </span>
+            {session ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm">Hoşgeldin, {session.user?.name}</span>
+                <Link href="/api/auth/signout" className="text-red-500 hover:underline">Çıkış Yap</Link>
+              </div>
+            ) : (
+              <Link href="/api/auth/signin" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+                Giriş Yap
+              </Link>
+            )}
+          </div>
+        </div>
+        <div className="border-t pt-4">
+          <CityFilter cities={cities} currentCity={currentCity} />
         </div>
       </header>
 
