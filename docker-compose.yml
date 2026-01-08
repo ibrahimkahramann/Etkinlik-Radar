@@ -113,13 +113,13 @@ services:
     container_name: etkinlik-followerservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=FollowerDb;Username=admin;Password=Password123!
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FollowerDb;User Id=sa;Password=Password123!;TrustServerCertificate=True
       - Keycloak__Authority=http://keycloak:8080/realms/etkinlik-radar
       - Keycloak__Audience=follower-api
     ports:
       - "5003:8080"
     depends_on:
-      - postgres
+      - sqlserver
       - keycloak
     networks:
       - etkinlik-network
@@ -173,7 +173,7 @@ services:
       - Keycloak__Authority=http://localhost:8080/realms/etkinlik-radar
       - Keycloak__ClientId=blazor-client
     ports:
-      - "5000:8080"
+      - "5001:8080"
     depends_on:
       - keycloak
     networks:
