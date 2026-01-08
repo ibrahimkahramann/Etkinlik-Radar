@@ -32,7 +32,9 @@ public class EventsController : ControllerBase
         if (pageSize < 1) pageSize = 12;
         if (pageSize > 1000) pageSize = 1000;
 
-        var allEvents = (await _eventRepository.GetAllEventsAsync()).ToList();
+        var allEvents = (await _eventRepository.GetAllEventsAsync())
+            .Where(e => !string.IsNullOrWhiteSpace(e.City))
+            .ToList();
         var totalCount = allEvents.Count;
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
