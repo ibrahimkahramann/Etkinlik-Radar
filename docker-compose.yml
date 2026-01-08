@@ -173,7 +173,7 @@ services:
       - Keycloak__Authority=http://localhost:8080/realms/etkinlik-radar
       - Keycloak__ClientId=blazor-client
     ports:
-      - "5001:8080"
+      - "5000:8080"
     depends_on:
       - keycloak
     networks:
