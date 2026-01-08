@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import EventCard from "@/components/EventCard";
+import FollowButton from "@/components/FollowButton";
 
 type Event = {
   id: string;
