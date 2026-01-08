@@ -18,7 +18,7 @@ public class GetFollowsQueryHandler : IRequestHandler<GetFollowsQuery, List<Foll
     {
         return await _context.Follows
             .Where(f => f.UserId == request.UserId)
-            .Select(f => new FollowDto(f.ArtistId, f.CreatedAt))
+            .Select(f => new FollowDto(f.Id, f.UserId, f.ArtistId, f.CreatedAt))
             .ToListAsync(cancellationToken);
     }
 }

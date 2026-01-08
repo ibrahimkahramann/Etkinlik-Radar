@@ -1,5 +1,7 @@
 using FollowerService.Features.Follows.Commands.FollowArtist;
+using FollowerService.Features.Follows.Commands.UnfollowArtist;
 using FollowerService.Features.Follows.Queries.GetFollows;
+using FollowerService.Features.Follows.Queries.GetAllFollows;
 using FollowerService.Features.Follows.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -54,6 +56,32 @@ public class FollowersController : ControllerBase
 
         return Ok(result);
     }
+
+    [AllowAnonymous]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> UnfollowArtist(int id)
+    {
+        var command = new UnfollowArtistCommand(id);
+        var result = await _mediator.Send(command);
+
+        if (!result)
+        {
+            return NotFound("Follow not found.");
+        }
+
+        return NoContent();
+    }
+
+    [AllowAnonymous]
+    [HttpGet("admin/all")]
+    public async Task<IActionResult> GetAllFollows()
+    {
+        var query = new GetAllFollowsQuery();
+        var result = await _mediator.Send(query);
+
+        return Ok(result);
+    }
 }
 
 public record FollowArtistRequest(string ArtistId);
+

@@ -1,3 +1,4 @@
 namespace FollowerService.Features.Follows.Dtos;
 
-public record FollowDto(string ArtistId, DateTime CreatedAt);
+public record FollowDto(int Id, string UserId, string ArtistId, DateTime CreatedAt);
+
