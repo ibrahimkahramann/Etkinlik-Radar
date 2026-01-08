@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 import EventCard from "@/components/EventCard";
 import FollowButton from "@/components/FollowButton";
+import Pagination from "@/components/Pagination";
 
 type Event = {
   id: string;
@@ -14,22 +15,29 @@ type Event = {
   source: string;
 };
 
-async function getEvents() {
+type EventsResponse = {
+  data: Event[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+};
+
+async function getEvents(page: number = 1, pageSize: number = 12): Promise<EventsResponse> {
   try {
-    const res = await fetch("http://localhost/api/events?page=1&pageSize=50", {
-      cache: "force-cache",
-      next: { revalidate: 300 }
+    const res = await fetch(`http://localhost/api/events?page=${page}&pageSize=${pageSize}`, {
+      cache: "no-store",
     });
 
     if (!res.ok) {
       console.error("Failed to fetch events:", res.status, res.statusText);
-      return [];
+      return { data: [], page: 1, pageSize: 12, totalCount: 0, totalPages: 0 };
     }
 
     return res.json();
   } catch (error) {
     console.error("Error fetching events:", error);
-    return [];
+    return { data: [], page: 1, pageSize: 12, totalCount: 0, totalPages: 0 };
   }
 }
 
@@ -54,13 +62,20 @@ async function getFollowedArtists(accessToken?: string) {
   }
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const currentPage = parseInt(params.page || "1", 10);
+  
   const session = await getServerSession();
-  let events: Event[] = [];
+  let eventsResponse: EventsResponse = { data: [], page: 1, pageSize: 12, totalCount: 0, totalPages: 0 };
   let followedArtists: string[] = [];
 
   try {
-    events = await getEvents();
+    eventsResponse = await getEvents(currentPage, 12);
     if (session && (session as any).accessToken) {
       followedArtists = await getFollowedArtists((session as any).accessToken);
     }
@@ -68,15 +83,16 @@ export default async function Home() {
     console.error("Error in Home:", error);
   }
 
-  if (!Array.isArray(events)) {
-    events = [];
-  }
+  const events = eventsResponse.data || [];
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
       <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow">
         <h1 className="text-2xl font-bold text-indigo-600">Etkinlik Radar</h1>
-        <div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-500">
+            {eventsResponse.totalCount} etkinlik bulundu
+          </span>
           {session ? (
             <div className="flex items-center gap-4">
               <span className="text-sm">Hoşgeldin, {session.user?.name}</span>
@@ -90,7 +106,7 @@ export default async function Home() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {events.map((evt, index) => (
           <div key={`${evt.id}-${index}`} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition flex flex-col">
             <img
@@ -123,6 +139,11 @@ export default async function Home() {
           </div>
         ))}
       </div>
+
+      <Pagination 
+        currentPage={eventsResponse.page} 
+        totalPages={eventsResponse.totalPages} 
+      />
     </main>
   );
 }
