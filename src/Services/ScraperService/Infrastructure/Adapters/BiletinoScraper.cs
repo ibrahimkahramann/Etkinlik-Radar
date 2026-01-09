@@ -133,6 +133,18 @@ public class BiletinoScraper : IScraperService
         {
             _logger.LogError(ex, "Error scraping Biletino with Selenium");
         }
+        finally
+        {
+            try
+            {
+                _driver.Quit();
+                _logger.LogInformation("WebDriver session closed for Biletino");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Error closing WebDriver: {Message}", ex.Message);
+            }
+        }
 
         return events;
     }

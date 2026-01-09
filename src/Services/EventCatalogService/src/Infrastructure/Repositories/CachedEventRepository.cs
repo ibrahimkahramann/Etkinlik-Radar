@@ -178,6 +178,11 @@ public class CachedEventRepository : IEventRepository
         return await _repository.EventExistsAsync(name, eventDate);
     }
 
+    public async Task<bool> EventExistsByTicketUrlAsync(string ticketUrl)
+    {
+        return await _repository.EventExistsByTicketUrlAsync(ticketUrl);
+    }
+
     public async Task<long> GetTotalEventsCountAsync()
     {
         string cacheKey = "total_events_count";

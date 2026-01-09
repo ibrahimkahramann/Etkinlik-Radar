@@ -14,5 +14,6 @@ public interface IEventRepository
     Task DeleteEventAsync(string id);
 
     Task<bool> EventExistsAsync(string name, DateTime eventDate);
+    Task<bool> EventExistsByTicketUrlAsync(string ticketUrl);
     Task<long> GetTotalEventsCountAsync();
 }

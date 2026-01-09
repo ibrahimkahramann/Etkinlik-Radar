@@ -63,6 +63,13 @@ public class EventRepository : IEventRepository
         return await _context.Find(filter).AnyAsync();
     }
 
+    public async Task<bool> EventExistsByTicketUrlAsync(string ticketUrl)
+    {
+        if (string.IsNullOrEmpty(ticketUrl)) return false;
+        var filter = Builders<Event>.Filter.Eq(e => e.TicketUrl, ticketUrl);
+        return await _context.Find(filter).AnyAsync();
+    }
+
     public async Task<long> GetTotalEventsCountAsync()
     {
         return await _context.CountDocumentsAsync(e => true);

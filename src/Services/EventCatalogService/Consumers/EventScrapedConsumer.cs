@@ -21,11 +21,22 @@ public class EventScrapedConsumer : IConsumer<EventScraped>
         var message = context.Message;
         _logger.LogInformation("Event consumed: {EventName} from {Source}", message.Name, message.Source);
 
-        bool exists = await _repository.EventExistsAsync(message.Name, message.Date);
+        // Check by ticket URL first (most reliable)
+        if (!string.IsNullOrEmpty(message.Url))
+        {
+            bool existsByUrl = await _repository.EventExistsByTicketUrlAsync(message.Url);
+            if (existsByUrl)
+            {
+                _logger.LogInformation("Event already exists (by URL), skipping: {EventName}", message.Name);
+                return;
+            }
+        }
 
+        // Fallback: check by name and date
+        bool exists = await _repository.EventExistsAsync(message.Name, message.Date);
         if (exists)
         {
-            _logger.LogInformation("Event already exists, skipping: {EventName}", message.Name);
+            _logger.LogInformation("Event already exists (by name/date), skipping: {EventName}", message.Name);
             return;
         }
 
