@@ -115,7 +115,8 @@ public class BiletinialScraper : IScraperService
                         Name = name,
                         Description = "Biletinial Event",
                         Date = DateTime.Now.AddDays(Random.Shared.Next(1, 60)), // Placeholder
-                        Location = city, // Placeholder
+                        Location = city,
+                        City = city,
                         Url = link,
                         ImageUrl = imageUrl,
                         Source = "Biletinial"

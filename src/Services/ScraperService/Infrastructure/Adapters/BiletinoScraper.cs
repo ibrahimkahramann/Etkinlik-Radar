@@ -114,6 +114,7 @@ public class BiletinoScraper : IScraperService
                             Description = location ?? "Biletino Event", // Use location as description for now
                             Date = ParseDate(dateText) ?? DateTime.Now.AddDays(Random.Shared.Next(1, 30)), 
                             Location = location ?? city,
+                            City = city,
                             Url = link,
                             ImageUrl = imageUrl,
                             Source = "Biletino"
